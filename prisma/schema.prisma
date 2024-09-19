@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+model User {
+  id          Int    @id @default(autoincrement())
+  username    String @unique
+  password    String
+  name        String
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Item {
+  id           Int      @id @default(autoincrement())
+  itemCode     String   @unique
+  name         String   @unique
+  description  String
+  itemStats    String                  
+  price        Int
+  inventories   CharacterInventory[]
+  equippedBy   CharacterItem[]
+}
+
+model Account {
+  id        Int        @id @default(autoincrement())
+  username  String     @unique
+  password  String
+  // 캐릭터
+  characters Character[]
+}
+
+model Character {
+  id        Int        @id @default(autoincrement())
+  name      String
+  level     Int
+  power     Int
+  money     Int
+  health    Int
+  account   Account    @relation(fields: [accountId], references: [id])
+  accountId Int
+  // 캐릭터 인벤토리
+  inventories CharacterInventory[]
+  // 캐릭터 아이템
+  equippedItems CharacterItem[]
+}
+
+model CharacterInventory {
+  id         Int      @id @default(autoincrement())
+  character  Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  item       Item     @relation(fields: [itemId], references: [id])
+  itemId     Int
+}
+
+model CharacterItem {
+  id         Int      @id @default(autoincrement())
+  character  Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  item       Item     @relation(fields: [itemId], references: [id])
+  itemId     Int
+}
